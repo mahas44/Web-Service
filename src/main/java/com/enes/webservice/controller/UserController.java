@@ -1,53 +1,48 @@
 package com.enes.webservice.controller;
 
-import com.enes.webservice.model.User;
+import com.enes.webservice.model.AppUser;
 import com.enes.webservice.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @RestController
-public class UserController {
+public class UserController{
 
     @Autowired
     UserRepository userRepository;
 
+    @GetMapping(value = "/", produces = "application/json; charset=utf-8")
+    public String getHealthCheck(){
+        return "{ \"isWorking\" : true }";
+    }
+
     @GetMapping("/users")
-    public List<User> getUsers(){
-        List<User> userList = userRepository.findAll();
-        return userList;
+    public List<AppUser> getUsers(){
+        return userRepository.findAll();
     }
 
     @GetMapping("/user/{id}")
-    public Optional<User> getUser(@PathVariable String id){
-        Optional<User> user = userRepository.findById(id);
-        return  user;
+    public Optional<AppUser> getUser(@PathVariable String id){
+        return userRepository.findById(id);
     }
 
-    @PostMapping("/user")
-    public User addUser(@RequestBody User newUser){
-        String id = UUID.randomUUID().toString();
-        User user = new User(id, newUser.getName(),newUser.getSurname(), newUser.getEmail());
-        if (userIsExist(newUser.getEmail())){
+    @PostMapping("/register")
+    public AppUser addUser(@RequestBody AppUser newAppUser){
+        if (userIsExist(newAppUser.getUsername())){
             return null;
         } else {
-            userRepository.insert(user);
-            return user;
+            AppUser appUser = new AppUser(newAppUser.getUsername(), newAppUser.getPassword(), newAppUser.getEmail());
+            userRepository.insert(appUser);
+            return appUser;
         }
     }
 
-    @GetMapping("/searchByEmail/{email}")
-    public Optional<User> getUserByEmail(@PathVariable String email){
-        Optional<User> user =  userRepository.findByEmail(email);
-        return user;
-    }
-
-    private boolean userIsExist(String email){
+    private boolean userIsExist(String username){
         if (anyUsersAreExistInCollection()){
-            Optional<User> user  = userRepository.findByEmail(email);
+            Optional<AppUser> user  = userRepository.findByUsername(username);
             return user.isPresent();
         } else {
             return false;

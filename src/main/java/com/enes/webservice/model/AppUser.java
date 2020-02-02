@@ -5,32 +5,31 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "users")
-public class User {
+public class AppUser {
 
     @Id
     private String _id;
-    private String name;
-    private String surname;
+
+    @Indexed(unique = true)
+    private String username;
+
+    private String password;
+
     @Indexed(unique = true)
     private String email;
 
-    public User(String _id, String name, String surname, String email) {
-        this._id = _id;
-        this.name = name;
-        this.surname = surname;
+    public AppUser(String username, String password, String email) {
+        this.username = username;
+        this.password = password;
         this.email = email;
     }
 
-    public String get_id() {
-        return _id;
+    public String getUsername() {
+        return username;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getSurname() {
-        return surname;
+    public String getPassword() {
+        return password;
     }
 
     public String getEmail() {
