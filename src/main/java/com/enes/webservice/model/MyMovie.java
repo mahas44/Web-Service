@@ -1,6 +1,5 @@
 package com.enes.webservice.model;
 
-import com.enes.webservice.tmdbModel.Result;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;

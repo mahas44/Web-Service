@@ -13,11 +13,12 @@ import java.util.List;
 @RequestMapping("/movies")
 public class MovieController {
 
+    @Autowired
     MovieRepository movieRepository;
 
-    public MovieController(MovieRepository movieRepository) {
-        this.movieRepository = movieRepository;
-    }
+//    public MovieController(MovieRepository movieRepository) {
+//        this.movieRepository = movieRepository;
+//    }
 
     @GetMapping()
     public List<MyMovie> getMovies(){

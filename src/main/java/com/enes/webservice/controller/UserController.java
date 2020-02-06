@@ -1,8 +1,11 @@
 package com.enes.webservice.controller;
 
+import com.enes.webservice.IResponsableObject;
 import com.enes.webservice.model.AppUser;
+import com.enes.webservice.model.CustomErrorType;
 import com.enes.webservice.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,7 +13,8 @@ import java.util.Optional;
 
 @RestController
 public class UserController{
-
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
     @Autowired
     UserRepository userRepository;
 
@@ -30,27 +34,17 @@ public class UserController{
     }
 
     @PostMapping("/register")
-    public AppUser addUser(@RequestBody AppUser newAppUser){
-        if (userIsExist(newAppUser.getUsername())){
-            return null;
-        } else {
-            AppUser appUser = new AppUser(newAppUser.getUsername(), newAppUser.getPassword(), newAppUser.getEmail());
-            userRepository.insert(appUser);
-            return appUser;
+    public IResponsableObject addUser(@RequestBody AppUser newAppUser){
+        if (userRepository.existsAppUserByUsername(newAppUser.getUsername())){
+            return new CustomErrorType(false,"This username `" + newAppUser.getUsername() + "` already exist.");
+        } else if (userRepository.existsAppUserByEmail(newAppUser.getEmail())){
+            return new CustomErrorType(false,"This email `" + newAppUser.getEmail() + "` already exist.");
+        }
+        else {
+            newAppUser.setPassword(bCryptPasswordEncoder.encode(newAppUser.getPassword()));
+            userRepository.insert(newAppUser);
+            return newAppUser;
         }
     }
 
-    private boolean userIsExist(String username){
-        if (anyUsersAreExistInCollection()){
-            Optional<AppUser> user  = userRepository.findByUsername(username);
-            return user.isPresent();
-        } else {
-            return false;
-        }
-    }
-
-    private boolean anyUsersAreExistInCollection(){
-        int i  = userRepository.findAll().size();
-        return i > 0;
-    }
 }
